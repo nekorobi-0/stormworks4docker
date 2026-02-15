@@ -1,6 +1,6 @@
 FROM debian:trixie-slim
 RUN apt update && \
-    apt install -y wget gpg &&\
+    apt install -y wget gpg xvfb&&\
     mkdir -pm755 /etc/apt/keyrings &&\
     wget -O - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key - &&\
     dpkg --add-architecture i386 &&\
