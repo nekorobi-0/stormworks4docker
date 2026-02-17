@@ -1,0 +1,15 @@
+FROM ubuntu:25.10
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://jp.archive.ubuntu.com/ubuntu/|g' /etc/apt/sources.list.d/ubuntu.sources&&\
+    apt update&&\
+    apt install -y wget gpg&&\
+    mkdir -pm755 /etc/apt/keyrings&&\
+    wget -O - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -&&\
+    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/questing/winehq-questing.sources&&\
+    apt update&&\
+    apt install -y --install-recommends winehq-stable&&\
+    apt install -y xvfb wine64 winbind dbus cabextract fonts-wine winetricks&&\
+    rm -rf /var/lib/apt/lists/*
+ENV WINEARCH=win64
+ENV WINEPREFIX=/root/.wine
+COPY --chmod=777 serverapp /serverapp
+CMD ["sleep","infinity"]

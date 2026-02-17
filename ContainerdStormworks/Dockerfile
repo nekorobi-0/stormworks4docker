@@ -1,24 +1,14 @@
-FROM debian:trixie-slim
-RUN apt update && \
-    apt install -y wget gpg xvfb&&\
-    mkdir -pm755 /etc/apt/keyrings &&\
-    wget -O - https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key - &&\
-    dpkg --add-architecture i386 &&\
-    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/trixie/winehq-trixie.sources &&\
-    apt update && \
-    apt install -y --install-recommends winehq-stable &&\
-    apt-get purge -y --auto-remove &&\
-    rm -rf /var/lib/apt/lists/*
-ENV WINEARCH=win64
-ENV WINEPREFIX=/home/user/.wine
-COPY --chmod=777 serverapp /serverapp
-RUN useradd user && mkdir /home/user && chown -R user:user /home/user
-RUN apt install -y wine32 wine64&& apt-get purge -y --auto-remove && rm -rf /var/lib/apt/lists/*
-RUN wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks&&\
-    chmod +x winetricks &&\
-    cp winetricks /usr/local/bin
-
-USER user
-COPY startupscript.sh /home/user/startupscript.sh
-WORKDIR /home/user
-CMD ["bash", "startupscript.sh"]
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim
+RUN dpkg --add-architecture i386 && \
+    apt update&&\
+    apt install -y wget python3 python3-xlib apparmor-profiles libgl1-mesa-dri:i386 libglx-mesa0:i386&&\
+    wget https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.3.0/python3-umu-launcher_1.3.0-1_amd64_debian-12.deb&&\
+    wget https://github.com/Open-Wine-Components/umu-launcher/releases/download/1.3.0/umu-launcher_1.3.0-1_all_debian-12.deb&&\
+    dpkg -i python3-umu-launcher_1.3.0-1_amd64_debian-12.deb&&\
+    dpkg -i umu-launcher_1.3.0-1_all_debian-12.deb&&\
+    rm umu-launcher_1.3.0-1_all_debian-12.deb&&\
+    rm python3-umu-launcher_1.3.0-1_amd64_debian-12.deb &&\
+    apt -f install &&\
+    touch umu-run &&\
+    uv add --script umu-run 'python-xlib' 'urllib3' 'truststore'
+CMD ["sleep","infinity"]
